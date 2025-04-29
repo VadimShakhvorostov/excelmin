@@ -17,22 +17,24 @@ public class NumServiceImpl implements NumService {
     public Integer getMinNum(String path, Integer n) throws IOException {
 
         PriorityQueue<Integer> tableNum = new PriorityQueue<>(Collections.reverseOrder());
-        FileInputStream fileInputStream = new FileInputStream(path);
 
-        XSSFWorkbook workbook = new XSSFWorkbook(fileInputStream);
-        XSSFSheet sheet = workbook.getSheetAt(0);
-        for (Row row : sheet) {
-            for (Cell cell : row) {
-                int value = (int) cell.getNumericCellValue();
+        try (FileInputStream fileInputStream = new FileInputStream(path);
+             XSSFWorkbook workbook = new XSSFWorkbook(fileInputStream)) {
 
-                if (tableNum.size() < n) {
-                    tableNum.offer(value);
-                } else if (value < tableNum.peek()) {
-                    tableNum.poll();
-                    tableNum.offer(value);
+            XSSFSheet sheet = workbook.getSheetAt(0);
+            for (Row row : sheet) {
+                for (Cell cell : row) {
+                    int value = (int) cell.getNumericCellValue();
+
+                    if (tableNum.size() < n) {
+                        tableNum.offer(value);
+                    } else if (value < tableNum.peek()) {
+                        tableNum.poll();
+                        tableNum.offer(value);
+                    }
                 }
             }
+            return tableNum.peek();
         }
-        return tableNum.peek();
     }
 }
